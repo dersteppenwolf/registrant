@@ -5,9 +5,7 @@ The main module to work with the report.
 It can instantiate `Geodatabase` class, read its objects,
 and their properties and build an HTML report file.
 """
-import os
-import shutil
-import datetime
+import os , traceback, shutil, logging, datetime, sys
 import pkgutil
 import pandas as pd
 from registrant import _util_mappings as utils
@@ -47,42 +45,49 @@ class Reporter(object):
             path to the folder where HTML report file along with
             the template and styling files folder will be created
         """
-        self.gdb_path = gdb_path
-        arcpy_loader = pkgutil.find_loader('arcpy')
-        if arcpy_loader:
-            self.arcpy_found = True
-        else:
-            self.arcpy_found = False
+        logging.debug("Reporter")
+        try:
+            self.gdb_path = gdb_path
+            arcpy_loader = pkgutil.find_loader('arcpy')
+            if arcpy_loader:
+                self.arcpy_found = True
+            else:
+                self.arcpy_found = False
 
-        if not self.arcpy_found and not gdb_path.endswith('.gdb'):
-            raise ValueError(OGR_GDB_SUPPORT_MESSAGE)
+            if not self.arcpy_found and not gdb_path.endswith('.gdb'):
+                raise ValueError(OGR_GDB_SUPPORT_MESSAGE)
 
-        self._out_report_folder = os.path.join(
-            out_report_folder_path,
-            os.path.basename(gdb_path).replace('.', '_'),
-            os.path.basename(REPORT_DATA_FOLDER_PATH),
-        )
+            self._out_report_folder = os.path.join(
+                out_report_folder_path,
+                os.path.basename(gdb_path).replace('.', '_'),
+                os.path.basename(REPORT_DATA_FOLDER_PATH),
+            )
 
-        if not os.path.exists(out_report_folder_path):
-            os.mkdir(out_report_folder_path)
-        else:
-            if os.path.exists(self._out_report_folder):
-                shutil.rmtree(self._out_report_folder)
+            if not os.path.exists(out_report_folder_path):
+                os.mkdir(out_report_folder_path)
+            else:
+                if os.path.exists(self._out_report_folder):
+                    shutil.rmtree(self._out_report_folder)
 
-        shutil.copytree(REPORT_DATA_FOLDER_PATH, self._out_report_folder)
+            shutil.copytree(REPORT_DATA_FOLDER_PATH, self._out_report_folder)
 
-        # path to .html file report that will be updated by this class methods
-        self.report_file_path = os.path.join(self._out_report_folder,
-                                             REPORT_FILE_NAME)
+            # path to .html file report that will be updated by this class methods
+            self.report_file_path = os.path.join(self._out_report_folder,
+                                                REPORT_FILE_NAME)
 
-        self.gdb = _geodatabase.Geodatabase(gdb_path)
+            self.gdb = _geodatabase.Geodatabase(gdb_path)
 
-        self._write_timestamp()
-        self._cleanup_report_folder()
+            self._write_timestamp()
+            self._cleanup_report_folder()
 
-        # general gdb properties
-        self._gdb_info = pd.DataFrame.from_records(
-            self.gdb.get_pretty_props(), index=[0])
+            # general gdb properties
+            self._gdb_info = pd.DataFrame.from_records(
+                self.gdb.get_pretty_props(), index=[0])
+        except Exception as e:
+                logging.error("*** "+ str(e.args[0] ))   
+                tb = sys.exc_info()[2]
+                tbinfo = traceback.format_tb(tb)[0]
+                logging.error( tbinfo )
         return
 
     # ----------------------------------------------------------------------

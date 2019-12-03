@@ -1,7 +1,7 @@
 # -*- coding: UTF-8 -*-
 """Geodatabase class representing an Esri geodatabase."""
 from __future__ import print_function
-import os
+import os, logging, sys, traceback
 import datetime
 import tempfile
 import pkgutil
@@ -47,13 +47,19 @@ class Geodatabase(object):
 
     def __init__(self, path):
         """Initialize `Geodatabase` object with basic properties."""
-        self.arcpy_found = arcpy_found
-        self.path = path
-        self.ds = self._get_gdb_ds()
-        self.metadata = self._get_ogr_metadata_full()
-        self.release = self._get_release()
-        self.wkspc_type = self._get_wkspc_type()
-        self.is_gdb_enabled = True if self.release else False
+        try:
+            self.arcpy_found = arcpy_found
+            self.path = path
+            self.ds = self._get_gdb_ds()
+            self.metadata = self._get_ogr_metadata_full()
+            self.release = self._get_release()
+            self.wkspc_type = self._get_wkspc_type()
+            self.is_gdb_enabled = True if self.release else False
+        except Exception as e:
+            logging.error("*** "+ str(e.args[0] ))   
+            tb = sys.exc_info()[2]
+            tbinfo = traceback.format_tb(tb)[0]
+            logging.error( tbinfo )
 
     # ----------------------------------------------------------------------
     def get_pretty_props(self):
