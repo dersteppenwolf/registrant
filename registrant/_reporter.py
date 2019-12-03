@@ -112,41 +112,47 @@ class Reporter(object):
         do_report_%obj%: bool:
             what type of information should be reported
         """
-        self._report_overview()
+        try:
+            self._report_overview()
 
-        if do_report_versions:
-            self._report_versions()
+            if do_report_versions:
+                self._report_versions()
 
-        if do_report_replicas:
-            self._report_replicas()
+            if do_report_replicas:
+                self._report_replicas()
 
-        if do_report_domains | do_report_domains_coded_values:
-            self._report_domains(do_report_domains,
-                                 do_report_domains_coded_values)
+            if do_report_domains | do_report_domains_coded_values:
+                self._report_domains(do_report_domains,
+                                    do_report_domains_coded_values)
 
-        if do_report_relclasses:
-            self._report_relclasses()
+            if do_report_relclasses:
+                self._report_relclasses()
 
-        if (do_report_tables | do_report_tables_fields
-                | do_report_tables_subtypes
-                | do_report_tables_indexes):
-            self._report_tables(
-                do_report_tables,
-                do_report_tables_fields,
-                do_report_tables_subtypes,
-                do_report_tables_indexes,
-            )
+            if (do_report_tables | do_report_tables_fields
+                    | do_report_tables_subtypes
+                    | do_report_tables_indexes):
+                self._report_tables(
+                    do_report_tables,
+                    do_report_tables_fields,
+                    do_report_tables_subtypes,
+                    do_report_tables_indexes,
+                )
 
-        if (do_report_fcs | do_report_fcs_fields | do_report_fcs_subtypes
-                | do_report_fcs_indexes):
-            self._report_fcs(
-                do_report_fcs,
-                do_report_fcs_fields,
-                do_report_fcs_subtypes,
-                do_report_fcs_indexes,
-            )
+            if (do_report_fcs | do_report_fcs_fields | do_report_fcs_subtypes
+                    | do_report_fcs_indexes):
+                self._report_fcs(
+                    do_report_fcs,
+                    do_report_fcs_fields,
+                    do_report_fcs_subtypes,
+                    do_report_fcs_indexes,
+                )
 
-        self._write_license_text()
+            self._write_license_text()
+        except Exception as e:
+            logging.error("*** "+ str(e.args[0] ))   
+            tb = sys.exc_info()[2]
+            tbinfo = traceback.format_tb(tb)[0]
+            logging.error( tbinfo )
         return
 
     # ----------------------------------------------------------------------
