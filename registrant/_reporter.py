@@ -413,47 +413,53 @@ class Reporter(object):
                     report_path=self.report_file_path)
 
             for table_name in tables_info['Name'].values:
-                _build_html.add_li_to_toc(
-                    parent_id='tocTables',
-                    section_header_id=table_name,
-                    report_path=self.report_file_path)
+                try:
+                    _build_html.add_li_to_toc(
+                        parent_id='tocTables',
+                        section_header_id=table_name,
+                        report_path=self.report_file_path)
 
-                if do_report_tables_fields:
-                    table_fields = self._get_table_fields(table_name)
-                    if table_fields is not None:
-                        _build_html.add_div_to_html_page(
-                            table_fields,
-                            section_header_id=table_name,
-                            section_title=table_name,
-                            header_size='h3',
-                            report_path=self.report_file_path)
+                    if do_report_tables_fields:
+                        table_fields = self._get_table_fields(table_name)
+                        if table_fields is not None:
+                            _build_html.add_div_to_html_page(
+                                table_fields,
+                                section_header_id=table_name,
+                                section_title=table_name,
+                                header_size='h3',
+                                report_path=self.report_file_path)
 
-                if do_report_tables_subtypes and self.arcpy_found:
-                    table_subtypes = self._get_table_subtypes(table_name)
-                    if table_subtypes is not None:
-                        if do_report_tables_fields:
-                            section_title = 'Subtypes'
+                    if do_report_tables_subtypes and self.arcpy_found:
+                        table_subtypes = self._get_table_subtypes(table_name)
+                        if table_subtypes is not None:
+                            if do_report_tables_fields:
+                                section_title = 'Subtypes'
+                            else:
+                                section_title = 'Subtypes ({0})'.format(table_name)
+                            _build_html.add_div_to_html_page(
+                                table_subtypes,
+                                section_header_id=table_name,
+                                section_title=section_title,
+                                header_size='h4',
+                                report_path=self.report_file_path)
+
+                    if do_report_tables_indexes and self.arcpy_found:
+                        table_indexes = self._get_table_indexes(table_name)
+                        if do_report_tables_fields is not None:
+                            section_title = 'Indexes'
                         else:
-                            section_title = 'Subtypes ({0})'.format(table_name)
+                            section_title = 'Indexes ({0})'.format(table_name)
                         _build_html.add_div_to_html_page(
-                            table_subtypes,
+                            table_indexes,
                             section_header_id=table_name,
                             section_title=section_title,
                             header_size='h4',
                             report_path=self.report_file_path)
-
-                if do_report_tables_indexes and self.arcpy_found:
-                    table_indexes = self._get_table_indexes(table_name)
-                    if do_report_tables_fields is not None:
-                        section_title = 'Indexes'
-                    else:
-                        section_title = 'Indexes ({0})'.format(table_name)
-                    _build_html.add_div_to_html_page(
-                        table_indexes,
-                        section_header_id=table_name,
-                        section_title=section_title,
-                        header_size='h4',
-                        report_path=self.report_file_path)
+                except Exception as e:
+                    logging.error( str(e.args[0] ))   
+                    tb = sys.exc_info()[2]
+                    tbinfo = traceback.format_tb(tb)[0]
+                    logging.error( tbinfo )
         return
 
     # ---------------------------------------------------------------------
