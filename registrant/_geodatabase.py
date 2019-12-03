@@ -48,6 +48,7 @@ class Geodatabase(object):
     def __init__(self, path):
         """Initialize `Geodatabase` object with basic properties."""
         try:
+            logging.debug("Geodatabase")
             self.arcpy_found = arcpy_found
             self.path = path
             self.ds = self._get_gdb_ds()
@@ -55,6 +56,7 @@ class Geodatabase(object):
             self.release = self._get_release()
             self.wkspc_type = self._get_wkspc_type()
             self.is_gdb_enabled = True if self.release else False
+            self.gdb_errors = []
         except Exception as e:
             logging.error("*** "+ str(e.args[0] ))   
             tb = sys.exc_info()[2]
@@ -309,17 +311,33 @@ class Geodatabase(object):
             fds = [fd for fd in arcpy.ListDatasets(feature_type='feature')]
             if fds:
                 for fd in fds:
+                    logging.debug("Dataset: {} ".format(fd))
                     arcpy.env.workspace = os.path.join(self.path, fd)
                     for fc in arcpy.ListFeatureClasses():
-                        od = self._get_fc_props(fc)
-                        od['Feature dataset'] = fd
-                        fcs.append(od)
+                        try:
+                            logging.debug("Feature: {} ".format(fc))
+                            od = self._get_fc_props(fc)
+                            od['Feature dataset'] = fd
+                            fcs.append(od)
+                        except Exception as e:
+                            logging.error(str(e.args[0] ))   
+                            tb = sys.exc_info()[2]
+                            tbinfo = traceback.format_tb(tb)[0]
+                            logging.error( tbinfo )
 
             # iterate feature classes in the geodatabase root
+            logging.debug("feature classes in the geodatabase root... ")
             arcpy.env.workspace = self.path
             for fc in arcpy.ListFeatureClasses():
-                od = self._get_fc_props(fc)
-                fcs.append(od)
+                try:
+                    logging.debug("Feature: {} ".format(fc))
+                    od = self._get_fc_props(fc)
+                    fcs.append(od)
+                except Exception as e:
+                    logging.error(str(e.args[0] ))   
+                    tb = sys.exc_info()[2]
+                    tbinfo = traceback.format_tb(tb)[0]
+                    logging.error( tbinfo )
 
         else:
             ds = ogr.Open(self.path, 0)
