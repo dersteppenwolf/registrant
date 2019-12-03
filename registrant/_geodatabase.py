@@ -259,6 +259,7 @@ class Geodatabase(object):
             arcpy.env.workspace = self.path
             for tbl in arcpy.ListTables():
                 try:
+                    logging.debug("Table: {} ".format(tbl))
                     tbl_instance = Table(arcpy.Describe(tbl).catalogPath)
                     if tbl_instance.OIDFieldName == 'ATTACHMENTID':
                         continue
