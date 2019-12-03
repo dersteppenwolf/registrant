@@ -280,7 +280,11 @@ class Geodatabase(object):
 
                     tables.append(od)
                 except Exception as e:
-                    logging.error('Error. Could not read table', tbl, '. Reason: ', e)
+                    logging.error('Error. Could not read table  {} '.format( tbl )  )
+                    logging.error( str(e.args[0] ))   
+                    tb = sys.exc_info()[2]
+                    tbinfo = traceback.format_tb(tb)[0]
+                    logging.error( tbinfo )
 
         else:
             table_names = [
