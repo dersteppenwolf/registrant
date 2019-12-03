@@ -279,7 +279,7 @@ class Geodatabase(object):
 
                     tables.append(od)
                 except Exception as e:
-                    logger.error('Error. Could not read table', tbl, '. Reason: ', e)
+                    logging.error('Error. Could not read table', tbl, '. Reason: ', e)
 
         else:
             table_names = [
@@ -356,7 +356,7 @@ class Geodatabase(object):
                     od['Row count'] = fc_instance.get_row_count()
                     fcs.append(od)
                 except Exception as e:
-                    logger.error(e)
+                    logging.error(e)
         return fcs
 
     # ----------------------------------------------------------------------
